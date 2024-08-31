@@ -6,6 +6,14 @@ This is a template projects that let you know how to make frameless window via Q
 There are two ways to make frameless windows, one uses QtWidget, the other uses QtQuick.  
 &nbsp;  
 
+## Showcase of FrameLessQtWidget  
+![FrameLessQtWidgetShowcase](/resources/FrameLessQtWidgetShowcase.gif)
+&nbsp;  
+
+## Showcase of FrameLessQtQuick  
+![FrameLessQtWidgetShowcase](/resources/FrameLessQtQuickShowcase.gif)
+&nbsp;  
+
 ## How to build  
 
 Environment that you may need to install to build this project are listed below.  
@@ -88,14 +96,6 @@ As the comment above, write your own directory path where Qt5Config.cmake is loc
 
 If you have followed the process above, you are ready to build this template project.  
 Once you have built the project, you might find the **.exe** file in your own ```Build\msvc-x64\Release(or Debug)``` directory.  
-&nbsp;  
-
-## Showcase of FrameLessQtWidget  
-![FrameLessQtWidgetShowcase](/resources/FrameLessQtWidgetShowcase.gif)
-&nbsp;  
-
-## Showcase of FrameLessQtQuick  
-![FrameLessQtWidgetShowcase](/resources/FrameLessQtQuickShowcase.gif)
 &nbsp;  
 
 ## Key point of making frameless window  
