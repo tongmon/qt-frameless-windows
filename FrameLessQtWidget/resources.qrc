@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file alias="Close.png">Resources/Close.png</file>
+        <file alias="CloseDeactivated.png">Resources/CloseDeactivated.png</file> 
+        <file alias="Maximize.png">Resources/Maximize.png</file>     
+        <file alias="MaximizeDeactivated.png">Resources/MaximizeDeactivated.png</file>   
+        <file alias="Restore.png">Resources/Restore.png</file>
+        <file alias="RestoreDeactivated.png">Resources/RestoreDeactivated.png</file>   
+        <file alias="Minimize.png">Resources/Minimize.png</file>
+        <file alias="MinimizeDeactivated.png">Resources/MinimizeDeactivated.png</file>
+        <file alias="Transparent.png">Resources/Transparent.png</file> 
+        <file alias="CloseHoverOrPressed.png">Resources/CloseHoverOrPressed.png</file> 
+        <file alias="ApplicationIcon.png">Resources/ApplicationIcon.png</file> 
+    </qresource>
+</RCC>

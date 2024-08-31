@@ -1,0 +1,100 @@
+﻿{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "description": "Windows builds only",
+            "name": "windows-base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/Build/${presetName}",
+            "installDir": "${sourceDir}/Installed/${presetName}",
+            "toolchainFile": "D:/ProgramFiles/vcpkg/scripts/buildsystems/vcpkg.cmake",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "description": "MSVC",
+            "name": "msvc",
+            "hidden": true,
+            "generator": "Visual Studio 17 2022",
+            "inherits": "windows-base"
+        },
+        {
+            "description": "MSVC with x64 option",
+            "name": "msvc-x64",
+            "displayName": "MSVC x64",
+            "inherits": "msvc",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+                "CMAKE_CXX_FLAGS": "/MP /D_UNICODE /DUNICODE /D_CRT_SECURE_NO_WARNINGS /JMC /permissive- /EHsc",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "description": "MSVC with x86 option",
+            "name": "msvc-x86",
+            "displayName": "MSVC x86",
+            "inherits": "msvc",
+            "architecture": {
+                "value": "Win32",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x86-windows-static",
+                "CMAKE_CXX_FLAGS": "/DWIN32 /MP /D_UNICODE /DUNICODE /D_CRT_SECURE_NO_WARNINGS /JMC /permissive- /EHsc",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "msvc-base-build-settings",
+            "hidden": true,
+            "nativeToolOptions": [
+                "/maxcpucount",
+                "/nologo",
+                "/verbosity:minimal"
+            ]
+        },
+        {
+            "name": "msvc-x64-debug-build",
+            "displayName": "Debug Build",
+            "inherits": "msvc-base-build-settings",
+            "configuration": "Debug",
+            "configurePreset": "msvc-x64"
+        },
+        {
+            "name": "msvc-x64-release-build",
+            "displayName": "Release Build",
+            "inherits": "msvc-base-build-settings",
+            "configuration": "Release",
+            "configurePreset": "msvc-x64"
+        },
+        {
+            "name": "msvc-x86-debug-build",
+            "displayName": "Debug Build",
+            "inherits": "msvc-base-build-settings",
+            "configuration": "Debug",
+            "configurePreset": "msvc-x86"
+        },
+        {
+            "name": "msvc-x86-release-build",
+            "displayName": "Release Build",
+            "inherits": "msvc-base-build-settings",
+            "configuration": "Release",
+            "configurePreset": "msvc-x86"
+        }
+    ],
+    "testPresets": []
+}

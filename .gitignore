@@ -1,0 +1,3 @@
+# Build files are excluded.
+*/Build/
+*/*.user
