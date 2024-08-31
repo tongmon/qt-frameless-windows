@@ -38,8 +38,8 @@ In case you are wondering which VS Code extension I used in this project, I have
 * [C/C++ by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
 * [CMake by twxs](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
 * [CMake Tools by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
-&nbsp;  
 
+&nbsp;  
 ### Other Instructions  
 
 You have to modify **CMakePresets.json** file.  
@@ -90,9 +90,13 @@ If you have followed the process above, you are ready to build this template pro
 Once you have built the project, you might find the **.exe** file in your own ```Build\msvc-x64\Release(or Debug)``` directory.  
 &nbsp;  
 
-## Showcase of FrameLessQtWidget
+## Showcase of FrameLessQtWidget  
+![FrameLessQtWidgetShowcase](/resources/FrameLessQtWidgetShowcase.gif)
+&nbsp;  
 
-## Showcase of FrameLessQtQuick
+## Showcase of FrameLessQtQuick  
+![FrameLessQtWidgetShowcase](/resources/FrameLessQtQuickShowcase.gif)
+&nbsp;  
 
 ## Key point of making frameless window  
 
@@ -191,7 +195,8 @@ case WM_NCHITTEST: {
     break;
 }
 ```
+&nbsp;  
 
-### Licence  
+## Licence  
 
 This project template is licensed under the [MIT License](https://github.com/tongmon/qt-frameless-windows/blob/main/LICENSE).
