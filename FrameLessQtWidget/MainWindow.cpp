@@ -265,13 +265,7 @@ bool MainWindow::nativeEvent(const QByteArray &event_type, void *message, long *
         }
 
         // Check the area where the user can click to move the window.
-        if (!m_custom_titlebar_layout->count() && m_custom_titlebar_layout->geometry().contains(local_x, local_y))
-        {
-            *result = HTCAPTION;
-            return true;
-        }
-        // If the current mouse is over the non-clickable widget, the user can drag the frameless window.
-        else if (determineNonClickableWidgetUnderMouse(m_custom_titlebar_layout, local_x, local_y))
+        if (determineNonClickableWidgetUnderMouse(m_custom_titlebar_layout, local_x, local_y))
         {
             *result = HTCAPTION;
             return true;
@@ -321,6 +315,9 @@ bool MainWindow::event(QEvent *evt)
 // Determine whether the current mouse coordinate is on the non-clickable widget or not using a recursive method.
 bool MainWindow::determineNonClickableWidgetUnderMouse(QLayout *layout, int x, int y)
 {
+    if (!layout->count() && layout->geometry().contains(x, y))
+        return true;
+
     for (size_t i = 0; i < layout->count(); i++)
     {
         auto item = layout->itemAt(i)->widget();
