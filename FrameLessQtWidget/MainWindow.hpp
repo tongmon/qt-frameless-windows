@@ -2,6 +2,7 @@
 #define HEADER__FILE__MAINWINDOW
 
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QLayout>
 #include <QMainWindow>
 #include <QPushButton>
@@ -23,20 +24,28 @@ class MainWindow : public QMainWindow
     QPushButton *m_maximize_btn;
     QPushButton *m_close_btn;
 
-    std::vector<QLayoutItem *> m_movable_area;
-    std::vector<QWidget *> m_activable_widgets;
+    QWidget *m_content_widget;
+    QWidget *m_titlebar_widget;
+    QHBoxLayout *m_custom_titlebar_layout;
 
   public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setResizeBorderWidth(const int &resize_border_width);
+    void setTitlebarHeight(const int &titlebar_height);
+    QWidget &getContentWidget();
+    QWidget &getTitlebarWidget();
+    QHBoxLayout &getCustomTitlebarLayout();
 
   private:
     bool nativeEvent(const QByteArray &event_type, void *message, long *result);
     bool event(QEvent *evt);
-    void OnScreenChanged(QScreen *screen);
-    void OnMinimizeButtonClicked();
-    void OnMaximizeButtonClicked();
-    void OnCloseButtonClicked();
+    bool determineNonClickableWidgetUnderMouse(QLayout *layout, int x, int y);
+    void setWidgetsActiveStateInCustomTitlebar(QLayout *layout, bool active_state);
+    void onScreenChanged(QScreen *screen);
+    void onMinimizeButtonClicked();
+    void onMaximizeButtonClicked();
+    void onCloseButtonClicked();
 };
 
 #endif // HEADER__FILE__MAINWINDOW

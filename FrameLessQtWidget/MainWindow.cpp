@@ -12,117 +12,50 @@
 #include <stdexcept>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_minimize_btn{nullptr}, m_maximize_btn{nullptr}, m_close_btn{nullptr}
+    : QMainWindow(parent), m_minimize_btn{nullptr}, m_maximize_btn{nullptr}, m_close_btn{nullptr}, m_resize_border_width{6}
 {
-    m_hwnd = (HWND)winId();
-    m_resize_border_width = 6;
+    m_hwnd = reinterpret_cast<HWND>(winId());
 
     // Set window shadows.
     const MARGINS aero_shadow_on = {1, 1, 1, 1};
     ::DwmExtendFrameIntoClientArea(m_hwnd, &aero_shadow_on);
 
-    // Set the Icon here.
-    setWindowIcon(QIcon(":/icon/ApplicationIcon.png"));
+    QObject::connect(windowHandle(), &QWindow::screenChanged, this, &MainWindow::onScreenChanged);
 
-    // Set window size.
-    int window_width = 1024, window_height = 768;
-    setGeometry(QApplication::desktop()->screen()->width() / 2 - window_width / 2,
-                QApplication::desktop()->screen()->height() / 2 - window_height / 2,
-                window_width, window_height);
-    setMinimumSize(400, 300);
-
-    QObject::connect(windowHandle(), &QWindow::screenChanged, this, &MainWindow::OnScreenChanged);
-
-    // Add widget.
+    // Add widget. (Initialize central widget)
     QWidget *entire_widget = new QWidget(this);
     entire_widget->setContentsMargins(0, 0, 0, 0);
     setCentralWidget(entire_widget);
 
-    // Set palette.
-    QPalette Pal(entire_widget->palette());
-    Pal.setColor(QPalette::Background, QColor(30, 34, 39));
-    entire_widget->setAutoFillBackground(true);
-    entire_widget->setPalette(Pal);
-
+    // Layout for entire widgets.
     QVBoxLayout *entire_layout = new QVBoxLayout(this);
     entire_widget->setLayout(entire_layout);
     entire_layout->setContentsMargins(0, 0, 0, 0);
     entire_layout->setSpacing(0);
 
+    // Initialize title bar widget
+    m_titlebar_widget = new QWidget(this);
+    entire_layout->addWidget(m_titlebar_widget);
+    m_titlebar_widget->setFixedHeight(35); // Default title bar height is 35
+    m_titlebar_widget->setContentsMargins(0, 0, 0, 0);
+    m_titlebar_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    // Layout for title bar
     QHBoxLayout *titlebar_layout = new QHBoxLayout(this);
-    entire_layout->addLayout(titlebar_layout);
+    m_titlebar_widget->setLayout(titlebar_layout);
     titlebar_layout->setContentsMargins(0, 0, 0, 0);
     titlebar_layout->setSpacing(0);
 
-    // Add a menu bar to the title bar.
-    QMenuBar *menubar = new QMenuBar(this);
-    titlebar_layout->addWidget(menubar);
-    menubar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    m_activable_widgets.push_back(menubar);
-    menubar->setStyleSheet(R"(
-        QMenuBar {
-            border-image: url(:/icon/Transparent.png);
-            background-color: rgba(255, 255, 255, 0%);
-            background-repeat: no-repeat;
-        }
-        QMenuBar::item {
-            color: rgb(152, 160, 175);
-        }
-        QMenuBar::item[active="false"] {
-            color: rgb(112, 120, 135);
-        }
-        QMenuBar::item:selected {
-            spacing: 3px;           
-            padding: 2px 10px;
-            background-color: rgb(52, 56, 61);
-            border-radius: 5px;
-        }
-
-        QMenu {
-             color: rgb(152, 160, 175);
-             background-color: rgb(30, 34, 39);
-        }
-        QMenu::item:selected {
-            background-color: rgb(52, 56, 61);
-        }
-    )");
-
-    QMenu *menu = menubar->addMenu("File");
-    menu->addAction("New Text File");
-    menu->addAction("New File");
-    menu->addAction("New Window");
-    menu->addAction("Open File");
-    menu->addAction("Open Directory");
-
-    menu = menubar->addMenu("Edit");
-    menu->addAction("Undo");
-    menu->addAction("Redo");
-    menu->addAction("Cut");
-    menu->addAction("Copy");
-    menu->addAction("Paste");
-
-    menu = menubar->addMenu("Selected Zone");
-    menu->addAction("Select All");
-    menu->addAction("Expand Select Zone");
-    menu->addAction("Collapse Select Zone");
-    menu->addAction("Add Cursor");
-    menu->addAction("Select Line Mode");
-
-    menu = menubar->addMenu("View");
-    menu->addAction("Command Pallete");
-    menu->addAction("Open View");
-    menu->addAction("Shape");
-    menu->addAction("Edit Layout");
-
-    // Add an area element to the m_movable_area variable where the user can click to move the window.
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    titlebar_layout->addSpacerItem(spacer);
-    m_movable_area.push_back(spacer);
+    QWidget *custom_titlebar_widget = new QWidget(this);
+    titlebar_layout->addWidget(custom_titlebar_widget);
+    custom_titlebar_widget->setContentsMargins(0, 0, 0, 0);
+    custom_titlebar_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Minimize button setup.
     m_minimize_btn = new QPushButton(this);
     titlebar_layout->addWidget(m_minimize_btn);
-    m_minimize_btn->setFixedSize(46, 35);
+    m_minimize_btn->setFixedWidth(46);
+    m_minimize_btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     m_minimize_btn->setFocusPolicy(Qt::FocusPolicy::NoFocus);
     m_minimize_btn->setStyleSheet(R"(
         QPushButton {
@@ -147,7 +80,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Maximize button setup.
     m_maximize_btn = new QPushButton(this);
     titlebar_layout->addWidget(m_maximize_btn);
-    m_maximize_btn->setFixedSize(46, 35);
+    m_maximize_btn->setFixedWidth(46);
+    m_maximize_btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     m_maximize_btn->setCheckable(true);
     m_maximize_btn->setFocusPolicy(Qt::FocusPolicy::NoFocus);
     m_maximize_btn->setStyleSheet(R"(
@@ -184,7 +118,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Close button setup.
     m_close_btn = new QPushButton(this);
     titlebar_layout->addWidget(m_close_btn);
-    m_close_btn->setFixedSize(46, 35);
+    m_close_btn->setFixedWidth(46);
+    m_close_btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     m_close_btn->setFocusPolicy(Qt::FocusPolicy::NoFocus);
     m_close_btn->setStyleSheet(R"(
         QPushButton {
@@ -208,30 +143,35 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QObject::connect(m_minimize_btn, &QPushButton::clicked, this, &MainWindow::OnMinimizeButtonClicked);
-    QObject::connect(m_maximize_btn, &QPushButton::clicked, this, &MainWindow::OnMaximizeButtonClicked);
-    QObject::connect(m_close_btn, &QPushButton::clicked, this, &MainWindow::OnCloseButtonClicked);
+    // Layout for title bar customization.
+    m_custom_titlebar_layout = new QHBoxLayout(custom_titlebar_widget);
+    custom_titlebar_widget->setLayout(m_custom_titlebar_layout);
+    m_custom_titlebar_layout->setContentsMargins(0, 0, 0, 0);
+    m_custom_titlebar_layout->setSpacing(0);
+    m_custom_titlebar_layout->setAlignment(Qt::AlignLeft);
+
+    QObject::connect(m_minimize_btn, &QPushButton::clicked, this, &MainWindow::onMinimizeButtonClicked);
+    QObject::connect(m_maximize_btn, &QPushButton::clicked, this, &MainWindow::onMaximizeButtonClicked);
+    QObject::connect(m_close_btn, &QPushButton::clicked, this, &MainWindow::onCloseButtonClicked);
 
     entire_layout->setAlignment(titlebar_layout, Qt::AlignTop);
 
-    QWidget *main_widget = new QWidget(this);
-    entire_layout->addWidget(main_widget);
-    main_widget->setContentsMargins(0, 0, 0, 0);
-    main_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_content_widget = new QWidget(this);
+    entire_layout->addWidget(m_content_widget);
+    m_content_widget->setContentsMargins(0, 0, 0, 0);
+    m_content_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    // Set main widget palette.
-    Pal = main_widget->palette();
-    Pal.setColor(QPalette::Background, QColor(35, 39, 46));
-    main_widget->setAutoFillBackground(true);
-    main_widget->setPalette(Pal);
+    // Set default title bar palette.
+    auto pal = m_titlebar_widget->palette();
+    pal.setColor(QPalette::Background, QColor(30, 34, 39));
+    m_titlebar_widget->setAutoFillBackground(true);
+    m_titlebar_widget->setPalette(pal);
 
-    QVBoxLayout *main_widget_layout = new QVBoxLayout(this);
-    main_widget->setLayout(main_widget_layout);
-
-    QPushButton *btn = new QPushButton("This is Button!", this);
-    btn->setFixedSize(180, 35);
-    main_widget_layout->addWidget(btn);
-    main_widget_layout->setAlignment(btn, Qt::AlignHCenter);
+    // Set default content widget palette.
+    pal = m_content_widget->palette();
+    pal.setColor(QPalette::Background, QColor(35, 39, 46));
+    m_content_widget->setAutoFillBackground(true);
+    m_content_widget->setPalette(pal);
 }
 
 MainWindow::~MainWindow()
@@ -325,13 +265,16 @@ bool MainWindow::nativeEvent(const QByteArray &event_type, void *message, long *
         }
 
         // Check the area where the user can click to move the window.
-        for (const auto &item : m_movable_area)
+        if (!m_custom_titlebar_layout->count() && m_custom_titlebar_layout->geometry().contains(local_x, local_y))
         {
-            if (item->geometry().contains(local_x, local_y))
-            {
-                *result = HTCAPTION;
-                return true;
-            }
+            *result = HTCAPTION;
+            return true;
+        }
+        // If the current mouse is over the non-clickable widget, the user can drag the frameless window.
+        else if (determineNonClickableWidgetUnderMouse(m_custom_titlebar_layout, local_x, local_y))
+        {
+            *result = HTCAPTION;
+            return true;
         }
 
         *result = HTTRANSPARENT;
@@ -353,26 +296,18 @@ bool MainWindow::nativeEvent(const QByteArray &event_type, void *message, long *
     return false;
 }
 
-// This is used to change the `active` state of the Maximize / Minimize / Close buttons.
+// This is used to change the `active` state of widgets in custom title bar.
 bool MainWindow::event(QEvent *evt)
 {
     switch (evt->type())
     {
     case QEvent::WindowActivate: {
-        for (auto &item : m_activable_widgets)
-        {
-            item->setProperty("active", true);
-            item->setStyleSheet(item->styleSheet());
-        }
+        setWidgetsActiveStateInCustomTitlebar(m_custom_titlebar_layout, true);
         break;
     }
 
     case QEvent::WindowDeactivate: {
-        for (auto &item : m_activable_widgets)
-        {
-            item->setProperty("active", false);
-            item->setStyleSheet(item->styleSheet());
-        }
+        setWidgetsActiveStateInCustomTitlebar(m_custom_titlebar_layout, false);
         break;
     }
 
@@ -383,20 +318,86 @@ bool MainWindow::event(QEvent *evt)
     return QMainWindow::event(evt);
 }
 
+// Determine whether the current mouse coordinate is on the non-clickable widget or not using a recursive method.
+bool MainWindow::determineNonClickableWidgetUnderMouse(QLayout *layout, int x, int y)
+{
+    for (size_t i = 0; i < layout->count(); i++)
+    {
+        auto item = layout->itemAt(i)->widget();
+        if (item)
+        {
+            if (item->geometry().contains(x, y))
+                return !item->property("clickable widget").toBool();
+        }
+        else
+        {
+            auto child_layout = layout->itemAt(i)->layout();
+            if (child_layout && child_layout->geometry().contains(x, y))
+                return determineNonClickableWidgetUnderMouse(child_layout, x, y);
+        }
+    }
+    return false;
+}
+
+// Set `active' state using recursive method.
+void MainWindow::setWidgetsActiveStateInCustomTitlebar(QLayout *layout, bool active_state)
+{
+    for (size_t i = 0; i < layout->count(); i++)
+    {
+        auto item = layout->itemAt(i)->widget();
+        if (item)
+        {
+            item->setProperty("active", active_state);
+            item->setStyleSheet(item->styleSheet());
+        }
+        else
+        {
+            auto child_layout = layout->itemAt(i)->layout();
+            if (child_layout)
+                setWidgetsActiveStateInCustomTitlebar(child_layout, active_state);
+        }
+    }
+}
+
+QWidget &MainWindow::getContentWidget()
+{
+    return *m_content_widget;
+}
+
+QWidget &MainWindow::getTitlebarWidget()
+{
+    return *m_titlebar_widget;
+}
+
+QHBoxLayout &MainWindow::getCustomTitlebarLayout()
+{
+    return *m_custom_titlebar_layout;
+}
+
+void MainWindow::setResizeBorderWidth(const int &resize_border_width)
+{
+    m_resize_border_width = resize_border_width;
+}
+
+void MainWindow::setTitlebarHeight(const int &titlebar_height)
+{
+    m_titlebar_widget->setFixedHeight(titlebar_height);
+}
+
 // Render again when frame is moved to another monitor.
-void MainWindow::OnScreenChanged(QScreen *screen)
+void MainWindow::onScreenChanged(QScreen *screen)
 {
     SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
                      SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
 }
 
-void MainWindow::OnMinimizeButtonClicked()
+void MainWindow::onMinimizeButtonClicked()
 {
     SendMessage(m_hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 }
 
-void MainWindow::OnMaximizeButtonClicked()
+void MainWindow::onMaximizeButtonClicked()
 {
     SendMessage(m_hwnd, WM_SYSCOMMAND, m_maximize_btn->isChecked() ? SC_MAXIMIZE : SC_RESTORE, 0);
 
@@ -404,7 +405,7 @@ void MainWindow::OnMaximizeButtonClicked()
     m_maximize_btn->setAttribute(Qt::WA_UnderMouse, false);
 }
 
-void MainWindow::OnCloseButtonClicked()
+void MainWindow::onCloseButtonClicked()
 {
     SendMessage(m_hwnd, WM_CLOSE, 0, 0);
 }

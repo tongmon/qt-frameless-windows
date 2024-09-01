@@ -93,11 +93,11 @@ bool MainWindow::nativeEventFilter(const QByteArray &event_type, void *message, 
                 sz->rgrc[0].bottom -= 8;
 
                 // Save window mode state.
-                m_quick_window->findChild<QObject *>("maximumButton")->setProperty("checked", true);
+                m_quick_window->findChild<QObject *>("maximizeButton")->setProperty("checked", true);
             }
             else if (wp.showCmd == SW_NORMAL)
                 // Save window mode state.
-                m_quick_window->findChild<QObject *>("maximumButton")->setProperty("checked", false);
+                m_quick_window->findChild<QObject *>("maximizeButton")->setProperty("checked", false);
         }
         return true;
     }
@@ -238,7 +238,7 @@ void MainWindow::onMinimizeButtonClicked()
 // Activated when the user clicks the Maxmimize button.
 void MainWindow::onMaximizeButtonClicked()
 {
-    bool checked = m_quick_window->findChild<QObject *>("maximumButton")->property("checked").toBool();
+    bool checked = m_quick_window->findChild<QObject *>("maximizeButton")->property("checked").toBool();
     SendMessage(m_hwnd, WM_SYSCOMMAND, checked ? SC_MAXIMIZE : SC_RESTORE, 0);
 }
 

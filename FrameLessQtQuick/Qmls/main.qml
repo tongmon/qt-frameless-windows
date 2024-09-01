@@ -186,13 +186,13 @@ ApplicationWindow {
 
                         // When you double-click this area, the window state changes as well.
                         onDoubleClicked: {
-                            applicationWindow.visibility = maximumButton.checked ? Window.Windowed : Window.Maximized
+                            applicationWindow.visibility = maximizeButton.checked ? Window.Windowed : Window.Maximized
                         }
                     }
                 }
 
                 Button {
-                    id: minimumButton
+                    id: minimizeButton
                     Layout.preferredWidth: 46
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignRight
@@ -213,8 +213,8 @@ ApplicationWindow {
                 }
 
                 Button {
-                    id: maximumButton
-                    objectName: "maximumButton"
+                    id: maximizeButton
+                    objectName: "maximizeButton"
                     Layout.preferredWidth: 46
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignRight
@@ -225,7 +225,7 @@ ApplicationWindow {
                                                                                              Qt.rgba(1.0, 1.0, 1.0, 0.0))
                     }
                     Image {
-                        source: maximumButton.checked ? (active ? "qrc:/icon/Restore.png" : "qrc:/icon/RestoreDeactivated.png") :
+                        source: maximizeButton.checked ? (active ? "qrc:/icon/Restore.png" : "qrc:/icon/RestoreDeactivated.png") :
                                                         (active ? "qrc:/icon/Maximize.png" : "qrc:/icon/MaximizeDeactivated.png")
                         anchors.fill: parent
                         fillMode: Image.PreserveAspectFit

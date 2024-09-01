@@ -98,6 +98,245 @@ If you have followed the process above, you are ready to build this template pro
 Once you have built the project, you might find the **.exe** file in your own ```Build\msvc-x64\Release(or Debug)``` directory.  
 &nbsp;  
 
+## How to Use  
+
+### FrameLessQtWidget  
+
+You can use frameless window simply like this.  
+```c++
+QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+QApplication app(argc, argv);
+
+MainWindow w;
+w.show();
+
+return app.exec();
+```
+It works but you would need more than this.
+The MainWindow class offers several additional functions.  
+&nbsp;  
+
+First, you can initialize the resize border width and title bar height.  
+```c++
+MainWindow w;
+w.setResizeBorderWidth(6); //! You can set the resize border width.
+w.setTitlebarHeight(35);   //! You also can set the title bar height.
+```
+&nbsp;  
+
+If you want to change the colors of the custom title bar, write the code like this.  
+```c++
+MainWindow w;
+
+//! MainWindow class provides getTitlebarWidget() function.
+//! It return title bar widget.
+// Set titlebar widget palette.
+auto pal = w.getTitlebarWidget().palette();
+pal.setColor(QPalette::Background, QColor(30, 34, 39)); // Set the colors you want
+w.getTitlebarWidget().setAutoFillBackground(true);
+w.getTitlebarWidget().setPalette(pal);
+```
+&nbsp;  
+
+If you want to change the colors of the content widget, write the code like this.  
+```c++
+MainWindow w;
+
+//! MainWindow class provides getContentWidget() function.
+//! It return main content widget.
+// Set main content widget palette.
+auto pal = w.getContentWidget().palette();
+pal.setColor(QPalette::Background, QColor(35, 39, 46));
+w.getContentWidget().setAutoFillBackground(true);
+w.getContentWidget().setPalette(pal);
+```
+&nbsp;  
+
+If you want to add some widget to the main widget, use ``getContentWidget()`` function like this.
+```c++
+MainWindow w;
+
+// Add layout to main content widget.
+QVBoxLayout *main_widget_layout = new QVBoxLayout(&w);
+w.getContentWidget().setLayout(main_widget_layout);
+
+// Add some button.
+QPushButton *btn = new QPushButton("This is Button!", &w.getContentWidget());
+btn->setFixedSize(180, 35);
+main_widget_layout->addWidget(btn);
+main_widget_layout->setAlignment(btn, Qt::AlignHCenter);
+```
+&nbsp;  
+
+If you want to add menu bar on custom title bar, write the code like this.  
+```c++
+MainWindow w;
+
+// Customize menu bar
+QMenuBar *menubar = new QMenuBar(&w);
+menubar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+// Initialize menu item.
+QMenu *menu = menubar->addMenu("File");
+menu->addAction("New File");
+menu->addAction("Open File");
+menu = menubar->addMenu("Edit");
+menu->addAction("Undo");
+menu->addAction("Redo");
+
+// Add widget to title bar.
+// "clickable widget" property should be true if you want this widget to work on the title bar.
+menubar->setProperty("clickable widget", true);
+w.getCustomTitlebarLayout().addWidget(menubar);
+```
+This ```menubar->setProperty("clickable widget", true);``` line determines whether the widget on the custom title bar is clickable or not.
+If **clickable widget** property is true, the widget will work but you can't drag that area for moving frameless window.  
+If **clickable widget** property is false, the widget will not react to your mouse but you can drag that area for moving frameless window.  
+So if you add a widget to the custom title bar, don't forget to set the **clickable widget** property!  
+&nbsp;  
+
+### FrameLessQtQuick    
+
+There are two things you need to follow in **main.cpp** file.   
+
+First, right after declaring QGuiApplication, you need to initialize MainWindow and install native event filter.
+```c++
+QGuiApplication app(argc, argv);
+
+//! Native event filter should be installed on MainWindow class at this time.
+//! If you install NativeEventFilter later, it is really hard to make window to frameless window.
+MainWindow win_quick_window;
+app.installNativeEventFilter(&win_quick_window);
+```
+&nbsp;  
+
+Second, use the ``initWindow()`` function in the linked lambda function like this.  
+```c++
+QQmlApplicationEngine engine;
+
+const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
+
+QObject::connect(
+    &engine, &QQmlApplicationEngine::objectCreated,
+    &app, [&](QObject *obj, const QUrl &obj_url) {
+        // Initialize window here
+        if ((!obj && url == obj_url) || !win_quick_window.initWindow(engine))
+            QCoreApplication::exit(-1);
+    },
+    Qt::QueuedConnection);
+engine.load(url);
+``` 
+These two things are all you need to care about in the cpp part.   
+&nbsp;  
+
+In **main.qml**, ApplicationWindow flags should be **Qt.Window**.   
+And there should be a resizeBorderWidth property like the one below.  
+```qml
+// Border width for window resizing
+// This is used in the WinQuickWindow.cpp file.
+property int resizeBorderWidth: 6
+```
+&nbsp;  
+
+An example of the Minimize button is shown below.  
+```qml
+Button {
+    id: minimizeButton
+    background: Rectangle {
+        color: parent.down ? Qt.rgba(1.0, 1.0, 1.0, 0.4) : (parent.hovered ? Qt.rgba(1.0, 1.0, 1.0, 0.2) :
+                                                            Qt.rgba(1.0, 1.0, 1.0, 0.0))
+    }
+    Image {
+        source: active ? "qrc:/icon/Minimize.png" : "qrc:/icon/MinimizeDeactivated.png"
+        anchors.fill: parent
+        fillMode: Image.PreserveAspectFit
+    }
+
+    // Trigger onMinimizeButtonClicked function implemented on C++ side.
+    onClicked: {
+        cppConnector.onMinimizeButtonClicked()
+    }
+}
+```
+```cppConnector.onMinimizeButtonClicked()``` this can trigger Minimize logic.  
+&nbsp;  
+
+An example of the Maximize button is shown below.  
+Maximize button should have **objectName**, **checkable**, **checked** value like below.  
+```qml
+Button {
+    id: maximizeButton
+    objectName: "maximizeButton"
+    checkable: true
+    checked: false
+    background: Rectangle {
+        color: parent.down ? Qt.rgba(1.0, 1.0, 1.0, 0.4) : (parent.hovered ? Qt.rgba(1.0, 1.0, 1.0, 0.2) :
+                                                                             Qt.rgba(1.0, 1.0, 1.0, 0.0))
+    }
+    Image {
+        source: maximizeButton.checked ? (active ? "qrc:/icon/Restore.png" : "qrc:/icon/RestoreDeactivated.png") :
+                                        (active ? "qrc:/icon/Maximize.png" : "qrc:/icon/MaximizeDeactivated.png")
+        anchors.fill: parent
+        fillMode: Image.PreserveAspectFit
+    }
+
+    // Trigger onMaximizeButtonClicked function implemented on C++ side.
+    onClicked: {
+        cppConnector.onMaximizeButtonClicked()
+    }
+}
+```
+```cppConnector.onMaximizeButtonClicked()``` this can trigger Maximize logic.  
+&nbsp;  
+
+An example of the Close button is shown below.  
+```qml
+Button {
+    id: closeButton
+    background: Rectangle {
+        color: parent.down ? Qt.rgba(0.78, 0.16, 0.184, 0.6) : (parent.hovered ? Qt.rgba(0.86, 0.16, 0.184, 0.9) :
+                                                                                 Qt.rgba(1.0, 1.0, 1.0, 0.0))
+    }
+    Image {
+        source: closeButton.hovered ? "qrc:/icon/CloseHoverOrPressed.png" :
+                                      (active ? "qrc:/icon/Close.png" : "qrc:/icon/CloseDeactivated.png")
+        anchors.fill: parent
+        fillMode: Image.PreserveAspectFit
+    }
+
+    // Trigger onMaximizeButtonClicked function implemented on C++ side.
+    onClicked: {
+        cppConnector.onCloseButtonClicked()
+    }
+}
+```
+```cppConnector.onCloseButtonClicked()``` this can trigger Close logic.  
+&nbsp;  
+
+You can make the area for dragging a frameless window like this.  
+```qml
+MouseArea {
+    anchors.fill: parent
+
+    // When you press this area, the window becomes movable.
+    onPressed: {
+        applicationWindow.startSystemMove()
+    }
+
+    // When you double-click this area, the window state changes as well.
+    onDoubleClicked: {
+        applicationWindow.visibility = maximizeButton.checked ? Window.Windowed : Window.Maximized
+    }
+}
+```
+&nbsp;  
+
+The rest qml is up to you to fill in.  
+Simply combine what you want!  
+&nbsp;  
+
 ## Key point of making frameless window  
 
 As you can see from the project code, **WM_NCCALCSIZE**, **WM_NCHITTEST** is the key message you should focus on.  
