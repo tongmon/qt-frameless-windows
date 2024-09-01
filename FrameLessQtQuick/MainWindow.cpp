@@ -1,47 +1,55 @@
 ﻿#include "MainWindow.hpp"
 
 #include <QMetaObject>
+#include <QQmlContext>
 #include <Windows.h>
 #include <Windowsx.h>
 #include <dwmapi.h>
 #include <memory>
 #include <stdexcept>
 
-MainWindow::MainWindow(QQuickWindow *quick_window)
-    : m_quick_window{quick_window}
+MainWindow::MainWindow(QQmlApplicationEngine *engine)
 {
-    SetQuickWindow(quick_window);
+    if (engine)
+        initWindow(*engine);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
-HWND MainWindow::GetHandle()
+HWND MainWindow::getHandle()
 {
     return m_hwnd;
 }
 
-bool MainWindow::SetQuickWindow(QQuickWindow *quick_window)
+bool MainWindow::initWindow(QQmlApplicationEngine &engine)
 {
-    if (!quick_window)
+    m_quick_window = qobject_cast<QQuickWindow *>(engine.rootObjects().at(0));
+
+    if (!m_quick_window)
         return false;
 
-    m_quick_window = quick_window;
-    m_hwnd = (HWND)m_quick_window->winId();
+    m_hwnd = reinterpret_cast<HWND>(m_quick_window->winId());
     m_resize_border_width = m_quick_window->property("resizeBorderWidth").toInt() * m_quick_window->devicePixelRatio();
 
-    QObject::connect(m_quick_window, &QQuickWindow::screenChanged, this, &MainWindow::OnScreenChanged);
+    QObject::connect(m_quick_window, &QQuickWindow::screenChanged, this, &MainWindow::onScreenChanged);
 
     // Set window shadows.
     const MARGINS aero_shadow_on = {1, 1, 1, 1};
     ::DwmExtendFrameIntoClientArea(m_hwnd, &aero_shadow_on);
 
+    // Install event handler
+    engine.installEventFilter(this);
+
+    // Make cppConnector obj so that we can connect functions for Minimize, Maximize / Restore, Close feature.
+    engine.rootContext()->setContextProperty("cppConnector", this);
+
     return true;
 }
 
 // Render again when frame is moved to another monitor.
-void MainWindow::OnScreenChanged(QScreen *screen)
+void MainWindow::onScreenChanged(QScreen *screen)
 {
     SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |

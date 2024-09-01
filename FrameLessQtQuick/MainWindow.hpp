@@ -2,6 +2,7 @@
 #define HEADER__FILE__MAINWINDOW
 
 #include <QAbstractNativeEventFilter>
+#include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QScreen>
 
@@ -14,12 +15,12 @@ class MainWindow : public QObject, public QAbstractNativeEventFilter
     int m_resize_border_width;
 
   public:
-    MainWindow(QQuickWindow *quick_window = nullptr);
+    MainWindow(QQmlApplicationEngine *engine = nullptr);
     ~MainWindow();
 
-    HWND GetHandle();
-    bool SetQuickWindow(QQuickWindow *quick_window);
-    void OnScreenChanged(QScreen *screen);
+    HWND getHandle();
+    bool initWindow(QQmlApplicationEngine &engine);
+    void onScreenChanged(QScreen *screen);
 
     bool eventFilter(QObject *obj, QEvent *evt);
     bool nativeEventFilter(const QByteArray &event_type, void *message, long *result);

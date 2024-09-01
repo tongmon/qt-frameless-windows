@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    // Native event filter should be installed on MainWindow class at this time.
-    // If you install NativeEventFilter later, it is really hard to make window to frameless window.
+    //! Native event filter should be installed on MainWindow class at this time.
+    //! If you install NativeEventFilter later, it is really hard to make window to frameless window.
     MainWindow win_quick_window;
     app.installNativeEventFilter(&win_quick_window);
 
@@ -35,19 +35,10 @@ int main(int argc, char *argv[])
 
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated,
-        &app, [&](QObject *obj, const QUrl &objUrl) {
-            if (!obj && url == objUrl)
+        &app, [&](QObject *obj, const QUrl &obj_url) {
+            // Initialize window here
+            if ((!obj && url == obj_url) || !win_quick_window.initWindow(engine))
                 QCoreApplication::exit(-1);
-            else
-            {
-                if (win_quick_window.SetQuickWindow(qobject_cast<QQuickWindow *>(engine.rootObjects().at(0))))
-                {
-                    engine.installEventFilter(&win_quick_window);
-
-                    // Make cppConnector obj so that we can connect functions for Minimize, Maximize / Restore, Close feature.
-                    engine.rootContext()->setContextProperty("cppConnector", &win_quick_window);
-                }
-            }
         },
         Qt::QueuedConnection);
     engine.load(url);
