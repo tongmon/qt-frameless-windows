@@ -114,7 +114,7 @@ w.show();
 
 return app.exec();
 ```
-It works but you would need more than this.
+It works but you would need more than this.  
 The MainWindow class offers several additional functions.  
 &nbsp;  
 
@@ -154,7 +154,7 @@ w.getContentWidget().setPalette(pal);
 ```
 &nbsp;  
 
-If you want to add some widget to the main widget, use ``getContentWidget()`` function like this.
+If you want to add some widget to the main widget, use ``getContentWidget()`` function like this.  
 ```c++
 MainWindow w;
 
@@ -191,7 +191,7 @@ menu->addAction("Redo");
 menubar->setProperty("clickable widget", true);
 w.getCustomTitlebarLayout().addWidget(menubar);
 ```
-This ```menubar->setProperty("clickable widget", true);``` line determines whether the widget on the custom title bar is clickable or not.
+This ```menubar->setProperty("clickable widget", true);``` line determines whether the widget on the custom title bar is clickable or not.  
 If **clickable widget** property is true, the widget will work but you can't drag that area for moving frameless window.  
 If **clickable widget** property is false, the widget will not react to your mouse but you can drag that area for moving frameless window.  
 So if you add a widget to the custom title bar, don't forget to set the **clickable widget** property!  
