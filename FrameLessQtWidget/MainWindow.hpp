@@ -2,7 +2,6 @@
 #define HEADER__FILE__MAINWINDOW
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QLayout>
 #include <QMainWindow>
 #include <QPushButton>
@@ -38,10 +37,14 @@ class MainWindow : public QMainWindow
     QHBoxLayout &getCustomTitlebarLayout();
 
   private:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     bool nativeEvent(const QByteArray &event_type, void *message, long *result);
+#else
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result);
+#endif
     bool event(QEvent *evt);
     bool determineNonClickableWidgetUnderMouse(QLayout *layout, int x, int y);
-    void setWidgetsActiveStateInCustomTitlebar(QLayout *layout, bool active_state);
+    void propagateActiveStateInCustomTitlebar(QLayout *layout, bool active_state);
     void onScreenChanged(QScreen *screen);
     void onMinimizeButtonClicked();
     void onMaximizeButtonClicked();

@@ -12,13 +12,19 @@ set(CMAKE_AUTORCC ON)
 # This project uses C++17
 set(CMAKE_CXX_STANDARD 17)
 
-# This path should be set to your directory path where Qt5Config.cmake (or Qt6Config.cmake) is located. 
+# This path should be set to your directory path where Qt5Config.cmake (or Qt6Config.cmake) is located.
 set(QT_DIR "D:\\ProgramFiles\\Qt\\5.15.10\\msvc2022_64\\lib\\cmake\\Qt5")
 
 # Qt modules
 find_package(QT NAMES Qt6 Qt5 REQUIRED Core)
 
 set(Qt${QT_VERSION_MAJOR}_DIR ${QT_DIR})
+
+# If you are using Qt6, set the directory path where Qt6CoreToolsConfig.cmake or Qt6GuiToolsConfig.cmake is located.
+if(${QT_VERSION_MAJOR} EQUAL 6)
+    set(Qt6CoreTools_DIR "${QT_DIR}\\..\\Qt6CoreTools")
+    set(Qt6GuiTools_DIR "${QT_DIR}\\..\\Qt6GuiTools")
+endif()
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets)
 

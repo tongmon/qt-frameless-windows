@@ -2,7 +2,6 @@
 
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QMenu>
 #include <QMenuBar>
 #include <cstdlib>
@@ -163,13 +162,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set default title bar palette.
     auto pal = m_titlebar_widget->palette();
-    pal.setColor(QPalette::Background, QColor(30, 34, 39));
+    pal.setColor(QPalette::Window, QColor(30, 34, 39));
     m_titlebar_widget->setAutoFillBackground(true);
     m_titlebar_widget->setPalette(pal);
 
     // Set default content widget palette.
     pal = m_content_widget->palette();
-    pal.setColor(QPalette::Background, QColor(35, 39, 46));
+    pal.setColor(QPalette::Window, QColor(35, 39, 46));
     m_content_widget->setAutoFillBackground(true);
     m_content_widget->setPalette(pal);
 }
@@ -178,7 +177,11 @@ MainWindow::~MainWindow()
 {
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool MainWindow::nativeEvent(const QByteArray &event_type, void *message, long *result)
+#else
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+#endif
 {
     MSG *msg = (MSG *)message;
 
@@ -296,12 +299,22 @@ bool MainWindow::event(QEvent *evt)
     switch (evt->type())
     {
     case QEvent::WindowActivate: {
-        setWidgetsActiveStateInCustomTitlebar(m_custom_titlebar_layout, true);
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+        m_close_btn->setStyleSheet(m_close_btn->styleSheet());
+        m_minimize_btn->setStyleSheet(m_minimize_btn->styleSheet());
+        m_maximize_btn->setStyleSheet(m_maximize_btn->styleSheet());
+#endif
+        propagateActiveStateInCustomTitlebar(m_custom_titlebar_layout, true);
         break;
     }
 
     case QEvent::WindowDeactivate: {
-        setWidgetsActiveStateInCustomTitlebar(m_custom_titlebar_layout, false);
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+        m_close_btn->setStyleSheet(m_close_btn->styleSheet());
+        m_minimize_btn->setStyleSheet(m_minimize_btn->styleSheet());
+        m_maximize_btn->setStyleSheet(m_maximize_btn->styleSheet());
+#endif
+        propagateActiveStateInCustomTitlebar(m_custom_titlebar_layout, false);
         break;
     }
 
@@ -337,7 +350,7 @@ bool MainWindow::determineNonClickableWidgetUnderMouse(QLayout *layout, int x, i
 }
 
 // Set `active' state using recursive method.
-void MainWindow::setWidgetsActiveStateInCustomTitlebar(QLayout *layout, bool active_state)
+void MainWindow::propagateActiveStateInCustomTitlebar(QLayout *layout, bool active_state)
 {
     for (size_t i = 0; i < layout->count(); i++)
     {
@@ -351,7 +364,7 @@ void MainWindow::setWidgetsActiveStateInCustomTitlebar(QLayout *layout, bool act
         {
             auto child_layout = layout->itemAt(i)->layout();
             if (child_layout)
-                setWidgetsActiveStateInCustomTitlebar(child_layout, active_state);
+                propagateActiveStateInCustomTitlebar(child_layout, active_state);
         }
     }
 }

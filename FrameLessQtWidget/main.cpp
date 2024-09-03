@@ -88,8 +88,8 @@ int main(int argc, char *argv[])
 
     // Set window size.
     int window_width = 1024, window_height = 768;
-    w.setGeometry(QApplication::desktop()->screen()->width() / 2 - window_width / 2,
-                  QApplication::desktop()->screen()->height() / 2 - window_height / 2,
+    w.setGeometry(QApplication::primaryScreen()->geometry().width() / 2 - window_width / 2,
+                  QApplication::primaryScreen()->geometry().height() / 2 - window_height / 2,
                   window_width, window_height);
     w.setMinimumSize(400, 300);
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     //! It return title bar widget.
     // Set titlebar widget palette.
     auto pal = w.getTitlebarWidget().palette();
-    pal.setColor(QPalette::Background, QColor(30, 34, 39));
+    pal.setColor(QPalette::Window, QColor(30, 34, 39));
     w.getTitlebarWidget().setAutoFillBackground(true);
     w.getTitlebarWidget().setPalette(pal);
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     //! It return main content widget.
     // Set main content widget palette.
     pal = w.getContentWidget().palette();
-    pal.setColor(QPalette::Background, QColor(35, 39, 46));
+    pal.setColor(QPalette::Window, QColor(35, 39, 46));
     w.getContentWidget().setAutoFillBackground(true);
     w.getContentWidget().setPalette(pal);
 
