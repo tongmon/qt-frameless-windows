@@ -28,9 +28,8 @@ I also used **CMakePresets.json** file to make this project, but this is not ess
 
 ### Qt  
 
-This project **requires** Qt5 to run.  
-I have tested this template project with Qt 5.15.10.  
-I haven't tested it on Qt 6, but it should work.  
+This project **requires** Qt5 (or higher) to run.  
+I have tested this template project with Qt 5.15.10 and Qt 6.5.2.  
 &nbsp;  
 
 ### Visual Studio 2022  
@@ -91,7 +90,7 @@ And you should also change **CMakeLists.txt** file.
 # This path should be set to your directory path where Qt5Config.cmake (or Qt6Config.cmake) is located. 
 set(QT_DIR "D:\\ProgramFiles\\Qt\\5.15.10\\msvc2022_64\\lib\\cmake\\Qt5")
 ```
-As the comment above, write your own directory path where Qt5Config.cmake is located.  
+As the comment above, write your own directory path where Qt5Config.cmake (or Qt6Config.cmake) is located.  
 &nbsp;  
 
 If you have followed the process above, you are ready to build this template project.  
@@ -134,7 +133,7 @@ MainWindow w;
 //! It return title bar widget.
 // Set titlebar widget palette.
 auto pal = w.getTitlebarWidget().palette();
-pal.setColor(QPalette::Background, QColor(30, 34, 39)); // Set the colors you want
+pal.setColor(QPalette::Window, QColor(30, 34, 39)); // Set the colors you want
 w.getTitlebarWidget().setAutoFillBackground(true);
 w.getTitlebarWidget().setPalette(pal);
 ```
@@ -148,7 +147,7 @@ MainWindow w;
 //! It return main content widget.
 // Set main content widget palette.
 auto pal = w.getContentWidget().palette();
-pal.setColor(QPalette::Background, QColor(35, 39, 46));
+pal.setColor(QPalette::Window, QColor(35, 39, 46));
 w.getContentWidget().setAutoFillBackground(true);
 w.getContentWidget().setPalette(pal);
 ```
