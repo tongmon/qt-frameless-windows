@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     bool nativeEvent(const QByteArray &event_type, void *message, long *result);
 #else
-    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result);
+    bool nativeEvent(const QByteArray &event_type, void *message, qintptr *result);
 #endif
     bool event(QEvent *evt);
     bool determineNonClickableWidgetUnderMouse(QLayout *layout, int x, int y);

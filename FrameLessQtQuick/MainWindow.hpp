@@ -27,7 +27,7 @@ class MainWindow : public QObject, public QAbstractNativeEventFilter
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     bool nativeEventFilter(const QByteArray &event_type, void *message, long *result);
 #else
-    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result);
+    bool nativeEventFilter(const QByteArray &event_type, void *message, qintptr *result);
 #endif
 
     // Functions used in main.qml files.

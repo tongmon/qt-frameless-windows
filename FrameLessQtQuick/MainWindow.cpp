@@ -74,7 +74,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool MainWindow::nativeEventFilter(const QByteArray &event_type, void *message, long *result)
 #else
-bool MainWindow::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
+bool MainWindow::nativeEventFilter(const QByteArray &event_type, void *message, qintptr *result)
 #endif
 {
     MSG *msg = (MSG *)message;

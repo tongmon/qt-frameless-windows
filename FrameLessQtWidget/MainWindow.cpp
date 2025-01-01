@@ -180,7 +180,7 @@ MainWindow::~MainWindow()
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool MainWindow::nativeEvent(const QByteArray &event_type, void *message, long *result)
 #else
-bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+bool MainWindow::nativeEvent(const QByteArray &event_type, void *message, qintptr *result)
 #endif
 {
     MSG *msg = (MSG *)message;
