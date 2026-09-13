@@ -14,7 +14,6 @@ ApplicationWindow {
     flags: Qt.Window
     
     // Border width for window resizing
-    // This is used in the WinQuickWindow.cpp file.
     property int resizeBorderWidth: 6
 
     ColumnLayout {

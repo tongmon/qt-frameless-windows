@@ -234,7 +234,6 @@ In **main.qml**, ApplicationWindow flags should be **Qt.Window**.
 And there should be a resizeBorderWidth property like the one below.  
 ```qml
 // Border width for window resizing
-// This is used in the WinQuickWindow.cpp file.
 property int resizeBorderWidth: 6
 ```
 &nbsp;  
